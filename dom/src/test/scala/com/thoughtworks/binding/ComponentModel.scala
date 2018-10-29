@@ -10,12 +10,12 @@ import org.scalajs.dom.html.Div
 class ComponentModel extends FreeSpec with Matchers {
 
   "@dom method component" in {
-    @dom def dialog: Binding[Div] = <div class="dialog"/>
+    @dom def dialog(id: String): Binding[Div] = <div id={id} class="dialog"/>
 
-    @dom val html = <div>{dialog.bind}</div>
+    @dom val html = <div>{dialog("message").bind}</div>
     html.watch()
 
-    assert(html.value.outerHTML == """<div><div class="dialog"/></div>""")
+    assert(html.value.outerHTML == """<div><div class="dialog" id="message"/></div>""")
   }
 
   "user defined tag component" in {
@@ -29,10 +29,10 @@ class ComponentModel extends FreeSpec with Matchers {
       }
     }
 
-    @dom val html = <div><dialog/></div>
+    @dom val html = <div><dialog id="message"/></div>
     html.watch()
 
-    assert(html.value.outerHTML == """<div><div class="dialog"/></div>""")
+    assert(html.value.outerHTML == """<div><div class="dialog" id="message"/></div>""")
   }
 
 }
