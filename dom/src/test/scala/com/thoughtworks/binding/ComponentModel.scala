@@ -4,7 +4,6 @@ import com.thoughtworks.binding.Binding.Var
 import com.thoughtworks.binding.dom.Runtime.TagsAndTags2
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalajs.dom.html.Div
-import scalatags.JsDom
 
 /**
   * @author Leonid Turnaev &lt;lmars@mail.ru&gt;
@@ -24,25 +23,9 @@ class ComponentModel extends FreeSpec with Matchers {
   }
 
   "user defined tag component" in {
-    import scala.language.implicitConversions
-
-    class Dialog(val div: Div) {
-      def caption: String = {
-        div.getAttribute("dialog-caption")
-      }
-      def caption_=(caption: String): Unit = {
-        div.setAttribute("dialog-caption", caption)
-      }
-    }
-
     object Dialog {
-      implicit final def toDiv(tag: Dialog): Div = tag.div
-
-      def render: Dialog = {
-        val div = JsDom.tags.div.render
-        div.className = "dialog"
-        new Dialog(div)
-      }
+      @dom
+      def apply(id: String, caption: Binding[String]): Binding[Div] = <div id={id} class="dialog" data:dialog-caption={caption.bind}/>
     }
 
     implicit final class UserTags(x: TagsAndTags2.type) {
