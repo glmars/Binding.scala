@@ -1,7 +1,8 @@
 package com.thoughtworks.binding
 
-import com.thoughtworks.binding.Binding.Var
+import com.thoughtworks.binding.Binding.{BindingSeq, Constants}
 import com.thoughtworks.binding.dom.Runtime.TagsAndTags2
+import org.scalajs.dom.Node
 import org.scalatest.{FreeSpec, Matchers}
 import org.scalajs.dom.html.Div
 import scalatags.JsDom
@@ -12,15 +13,13 @@ import scalatags.JsDom
 class ComponentModel extends FreeSpec with Matchers {
 
   "@dom method component" in {
-    @dom def dialog(id: String, caption: Binding[String]): Binding[Div] = <div id={id} class="dialog" data:dialog-caption={caption.bind}/>
+    @dom def dialog(children: BindingSeq[Node]): Binding[Div] = <div class="dialog">{children}</div>
 
-    val caption = Var("Caption")
-    @dom val html = <div>{dialog("message", caption).bind}</div>
+    @dom val warning = Some(<div>warning</div>)
+    @dom val html = <div>{dialog(Constants(<div>Some text</div> +: warning.bind.toSeq:_*)).bind}</div>
     html.watch()
 
-    assert(html.value.outerHTML == """<div><div dialog-caption="Caption" class="dialog" id="message"/></div>""")
-    caption.value = "New caption"
-    assert(html.value.outerHTML == """<div><div dialog-caption="New caption" class="dialog" id="message"/></div>""")
+    assert(html.value.outerHTML == """<div><div class="dialog"><div>Some text</div><div>warning</div></div></div>""")
   }
 
   "user defined tag component" in {
@@ -49,13 +48,11 @@ class ComponentModel extends FreeSpec with Matchers {
       val dialog = Dialog
     }
 
-    val caption = Var("Caption")
-    @dom val html = <div><dialog id="message" caption={caption.bind}/></div>
+    @dom val warning = Some(<div>warning</div>)
+    @dom val html = <div><dialog><div>Some text</div>{warning.bind}</dialog></div>
     html.watch()
 
-    assert(html.value.outerHTML == """<div><div class="dialog" dialog-caption="Caption" id="message"/></div>""")
-    caption.value = "New caption"
-    assert(html.value.outerHTML == """<div><div class="dialog" dialog-caption="New caption" id="message"/></div>""")
+    assert(html.value.outerHTML == """<div><div class="dialog"><div>Some text</div><div>warning</div></div></div>""")
   }
 
 }
