@@ -580,18 +580,18 @@ object dom {
             val componentParams = for {
               (key, value) <- domAttributes
             } yield {
-              val attributePropertyName = TermName(componentPropertyName(key))
-
-              atPos(value.pos) {
+              val propertyValue = atPos(value.pos) {
                 value match {
                   case EmptyAttribute() =>
-                    q"""$attributePropertyName = _root_.com.thoughtworks.binding.Binding.Constant.apply("")"""
+                    q"""_root_.com.thoughtworks.binding.Binding.Constant.apply("")"""
                   case Text(textLiteral) =>
-                    q"""$attributePropertyName = _root_.com.thoughtworks.binding.Binding.Constant.apply($textLiteral)"""
+                    q"""_root_.com.thoughtworks.binding.Binding.Constant.apply($textLiteral)"""
                   case _ =>
-                    q"""$attributePropertyName = ${transform(value)}"""
+                    transform(value)
                 }
               }
+
+              q"""${TermName(componentPropertyName(key))} = $propertyValue"""
             }
 
             val (valDefs, transformedChildrenBuffer) = nodeSeq(children)
